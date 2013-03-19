@@ -10,35 +10,35 @@ namespace XmlExtensions {
 			XmlNode valueNode = node.GetValueForKey (name);
 			return (valueNode != null) ? StringToRect (valueNode.InnerText) : new Rect (0, 0, 0, 0);
 		}
-	
+
 		public static Vector2 GetVector2 (this XmlNode node, string name)
 		{
 			XmlNode valueNode = node.GetValueForKey (name);
 			return (valueNode != null) ? StringToVector2 (valueNode.InnerText) : Vector2.zero;
 		}
-	
+
 		public static bool GetBool (this XmlNode node, string name)
 		{
 			XmlNode valueNode = node.GetValueForKey (name);
 			return (valueNode != null) ? (valueNode.Name.ToLower () == "true") : false;
 		}
-		
+
 		public static XmlNode GetValueForKey (this XmlNode node, string name)
 		{
 			XmlNode keyNode = node.SelectSingleNode ("key[.='" + name + "']");
 			return (keyNode != null) ? keyNode.NextSibling : null;
 		}
-		
-		
+
+
 		/* Private */
-		
+
 		private static Vector2 StringToVector2 (string s)
 		{
 			string _s = s.Substring (1, s.Length - 2);
 			string[] sa = _s.Split (',');
 			return new Vector2 (System.Convert.ToSingle (sa [0]), System.Convert.ToSingle (sa [1]));
 		}
-	
+
 		private static Rect StringToRect (string s)
 		{
 			string _s = s.Substring (1, s.Length - 2);
