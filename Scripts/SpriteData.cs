@@ -9,7 +9,6 @@ public class SpriteData
 	public float height;
 	public int index;
 
-	private Sprite _sprite = null;					// the sprite object this data belongs to
 	private Vector2 _size;							// size of frame in pixels
 	private Vector2 _sheetPixelCoords;				// coords of frame on actual image in pixels
 	private Texture _texture;
@@ -17,16 +16,6 @@ public class SpriteData
 	private Vector3[] _vertices = new Vector3[4];	// ditto
 	private int[] _triangles = new int[6];			// define the triangles of the mesh using the vertex indices - we're winding clockwise
 	private Vector3[] _normals = new Vector3[4];
-
-	private Transform _transform;
-
-	public Sprite sprite {
-		set {
-			_sprite = value;
-			_transform = _sprite.transform;
-			RecalculateSize ();
-		}
-	}
 
 	public Vector2 size {
 		get {
@@ -117,9 +106,9 @@ public class SpriteData
 	// scale to exactly match the pixel height/width of the sprite.
 	// Unity recommends using a 1 unit = 1 meter scale for the best physics emulation
 	// results, but I believe that if we also adjust our gravity, we should be fine.
-	public void RecalculateSize ()
+	public Vector3 RecalculateSize ()
 	{
-		_transform.localScale = new Vector3 (_size.x, _size.y, 0);
+		return new Vector3 (_size.x, _size.y, 0);
 	}
 
 

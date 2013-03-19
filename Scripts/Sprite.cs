@@ -22,6 +22,7 @@ public class Sprite : MonoBehaviour
 	private SpriteContainer _spriteContainer = null;
 	public int frameIndex = 0;
 
+	private Transform _transform = null;
 	private SpriteData[] _spriteData;
 	private MeshFilter _meshFilter;			// MeshFilter component added to GameObject by script
 	private Mesh _mesh;						// mesh object created by script, and added to MeshFilter
@@ -29,6 +30,8 @@ public class Sprite : MonoBehaviour
 
 	void Start ()
 	{
+		_transform = transform;
+
 		// add a MeshFilter object if it doesn't exist
 		_meshFilter = gameObject.GetComponent<MeshFilter> ();
 		if (_meshFilter == null) {
@@ -125,10 +128,6 @@ public class Sprite : MonoBehaviour
 			}
 
 			_spriteData = spriteContainer.spriteData;
-			foreach (SpriteData data in _spriteData) {
-				data.sprite = this;
-			}
-
 			UpdateMesh ();
 		}
 	}
@@ -154,7 +153,7 @@ public class Sprite : MonoBehaviour
 			_mesh.uv = _spriteData [frameIndex].uvs;
 			_mesh.triangles = _spriteData [frameIndex].triangles;
 			_mesh.normals = _spriteData [frameIndex].normals;
-			_spriteData [frameIndex].RecalculateSize ();
+			_transform.localScale = _spriteData [frameIndex].RecalculateSize ();
 			_mesh.RecalculateBounds ();
 		}
 	}
