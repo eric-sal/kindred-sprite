@@ -4,31 +4,20 @@ using System.Collections.Generic;
 using System.Xml;
 using XmlExtensions;
 
-// We want to see the changes to the SpriteContainer while developing
 [ExecuteInEditMode]
 
 // Import sprite sheet and atlas data
 public class SpriteContainer : MonoBehaviour
 {
 	public Texture texture;
-	public AtlasData[] atlasData = null;
-	public int borderPadding = 0; 				// padding around edges of sprite sheet image in pixels
+	public SpriteData[] spriteData;
 	public TextAsset atlasDataFile = null;
 	private TextAsset _atlasDataFile = null;
 	public bool reloadData = false;
 
-	private SpriteData[] _spriteData;
 	private int _atlasDataFileSize = 0;
 	private Material _material;
-	private MeshRenderer _renderer;
-
 	private XmlNode _subTexture = null;
-
-	public SpriteData[] spriteData {
-		get {
-			return _spriteData;
-		}
-	}
 
 	public Material material {
 		get {
@@ -41,19 +30,6 @@ public class SpriteContainer : MonoBehaviour
 			}
 
 			return _material;
-		}
-	}
-
-	public void Awake ()
-	{
-		if (!Application.isPlaying) {
-			if (atlasDataFile != null) {
-				ImportAtlasData ();
-
-				_atlasDataFileSize = atlasDataFile.bytes.Length;
-			}
-
-			_atlasDataFile = atlasDataFile;
 		}
 	}
 
@@ -80,10 +56,9 @@ public class SpriteContainer : MonoBehaviour
 		}
 	}
 
-	private void Reset ()
+	public void Reset ()
 	{
 		if (atlasDataFile == null) {
-			atlasData = null;
 			_atlasDataFile = null;
 			_atlasDataFileSize = 0;
 		}
@@ -129,24 +104,18 @@ public class SpriteContainer : MonoBehaviour
 			}
 		}
 
-		atlasData = data.ToArray ();
-		BuildSpriteData ();
-	}
+		spriteData = new SpriteData[data.Count];
+		SpriteData sprite = null;
+		for (int i = 0; i < data.Count; i++) {
+			sprite = ScriptableObject.CreateInstance<SpriteData> ();
+			sprite.name = data [i].name;
+			sprite.size = data [i].size;
+			sprite.sheetPixelCoords = data [i].position;
+			sprite.texture = texture;
+			sprite.UpdateVertices ();
+			sprite.UpdateUVs ();
 
-	// Build sprite data from atlas data
-	private void BuildSpriteData ()
-	{
-		_spriteData = new SpriteData[atlasData.Length];
-
-		for (int i = 0; i < atlasData.Length; i++) {
-			spriteData [i] = new SpriteData ();
-			spriteData [i].index = i;
-			spriteData [i].name = atlasData [i].name;
-			spriteData [i].size = atlasData [i].size;
-			spriteData [i].sheetPixelCoords = atlasData [i].position;
-			spriteData [i].texture = texture;
-			spriteData [i].UpdateVertices ();
-			spriteData [i].UpdateUVs ();
+			spriteData [i] = sprite;
 		}
 	}
 }
