@@ -28,6 +28,16 @@ public class Sprite : MonoBehaviour
 	private Mesh _mesh;						// mesh object created by script, and added to MeshFilter
 	private bool _meshChanged = false;
 
+	public Vector2 position {
+		get {
+			return new Vector2 (_transform.position.x, _transform.position.y);
+		}
+
+		set {
+			_transform.position = new Vector3 (value.x, value.y, _transform.position.z);
+		}
+	}
+
 	void Awake ()
 	{
 		_transform = transform;
@@ -120,11 +130,7 @@ public class Sprite : MonoBehaviour
 					renderer.sharedMaterial = spriteContainer.material;
 				}
 			} else {
-				if (Application.isPlaying) {
-					_mesh = _meshFilter.mesh;
-				} else {
-					_mesh = _meshFilter.sharedMesh;
-				}
+				_mesh = (Application.isPlaying) ? _meshFilter.mesh : _meshFilter.sharedMesh;
 			}
 
 			if (_spriteData == null || _spriteData.Length == 0) {
