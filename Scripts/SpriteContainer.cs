@@ -19,6 +19,12 @@ public class SpriteContainer : MonoBehaviour
 	private Material _material;
 	private XmlNode _subTexture = null;
 
+	// We don't want to show any of these in the editor, but we want them to be
+	// saved on the GameObject, and get serialized properly when starting the player.
+	[HideInInspector] public Vector3[] vertices = new Vector3[4];	// 4 coords for upper-left, lower-left, lower-right, upper-right
+	[HideInInspector] public int[] triangles = new int[6];			// define the triangles of the mesh using the vertex indices - we're winding clockwise
+	[HideInInspector] public Vector3[] normals = new Vector3[4];
+
 	public Material material {
 		get {
 			if (_material == null) {
@@ -64,6 +70,41 @@ public class SpriteContainer : MonoBehaviour
 		}
 	}
 
+	// Since the verts/tris/normals should be exactly the same for all
+	// sprites in the container, we can keep that info on the SpriteContainer,
+	// rather than duplicate it for each SpriteData object in our array.
+	public void InitVertices ()
+	{
+		UpdateVertices (0);
+
+		// also update the triangles - Clockwise winding
+		triangles [0] = 0;		//	2				2 ___ 3
+		triangles [1] = 2;		//  |\		Verts:	 |\  |
+		triangles [2] = 1;		// 0|_\1			0|_\|1
+
+		triangles [3] = 2;		//	3__ 4
+		triangles [4] = 3;		//   \ |
+		triangles [5] = 1;		//    \|5
+
+		// and finally, update the normals. Since we know we're in XY 2D space,
+		// We can just make the normals face forward, and save some computing time.
+		normals [0] = Vector3.forward;
+		normals [1] = Vector3.forward;
+		normals [2] = Vector3.forward;
+		normals [3] = Vector3.forward;
+	}
+
+	public void UpdateVertices (float depth)
+	{
+		// for a centered pivot point
+		vertices [0] = new Vector3 (-0.5f, -0.5f, depth);	// lower-left
+		vertices [1] = new Vector3 (0.5f, -0.5f, depth);	// lower-right
+		vertices [2] = new Vector3 (-0.5f, 0.5f, depth);	// upper-left
+		vertices [3] = new Vector3 (0.5f, 0.5f, depth);		// upper-right
+	}
+
+	/*** Private ***/
+
 	// Read and parse atlas data from XML file
 	private void ImportAtlasData ()
 	{
@@ -104,6 +145,7 @@ public class SpriteContainer : MonoBehaviour
 			}
 		}
 
+		InitVertices();
 		spriteData = new SpriteData[data.Count];
 		SpriteData sprite = null;
 		for (int i = 0; i < data.Count; i++) {
@@ -112,7 +154,6 @@ public class SpriteContainer : MonoBehaviour
 			sprite.size = data [i].size;
 			sprite.sheetPixelCoords = data [i].position;
 			sprite.texture = texture;
-			sprite.UpdateVertices ();
 			sprite.UpdateUVs ();
 
 			spriteData [i] = sprite;

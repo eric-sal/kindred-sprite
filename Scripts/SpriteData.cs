@@ -8,38 +8,10 @@ using System.Collections;
 public class SpriteData : ScriptableObject
 {
 	public string name = "";
-	public Vector2 size;							// size of frame in pixels
-	public Vector2 sheetPixelCoords;				// coords of frame on actual image in pixels
+	public Vector2 size;						// size of frame in pixels
+	public Vector2 sheetPixelCoords;			// coords of frame on actual image in pixels
 	public Texture texture;
 	public Vector2[] uvs = new Vector2[4];		// 4 coords for each sprite - upper-left, lower-left, lower-right, upper-right
-	public Vector3[] vertices = new Vector3[4];	// ditto
-	public int[] triangles = new int[6];			// define the triangles of the mesh using the vertex indices - we're winding clockwise
-	public Vector3[] normals = new Vector3[4];
-
-	public void UpdateVertices ()
-	{
-		// for a centered pivot point
-		vertices [0] = new Vector3 (-0.5f, -0.5f, 0);	// lower-left
-		vertices [1] = new Vector3 (0.5f, -0.5f, 0);	// lower-right
-		vertices [2] = new Vector3 (-0.5f, 0.5f, 0);	// upper-left
-		vertices [3] = new Vector3 (0.5f, 0.5f, 0);		// upper-right
-
-		// also update the triangles - Clockwise winding
-		triangles [0] = 0;		//	2				2 ___ 3
-		triangles [1] = 2;		//  |\		Verts:	 |\  |
-		triangles [2] = 1;		// 0|_\1			0|_\|1
-
-		triangles [3] = 2;		//	3__ 4
-		triangles [4] = 3;		//   \ |
-		triangles [5] = 1;		//    \|5
-
-		// and finally, update the normals. Since we know we're in XY 2D space,
-		// We can just make the normals face forward, and save some computing time.
-		normals [0] = Vector3.forward;
-		normals [1] = Vector3.forward;
-		normals [2] = Vector3.forward;
-		normals [3] = Vector3.forward;
-	}
 
 	public void UpdateUVs ()
 	{
@@ -61,7 +33,7 @@ public class SpriteData : ScriptableObject
 	// results, but I believe that if we also adjust our gravity, we should be fine.
 	public Vector3 RecalculateSize ()
 	{
-		return new Vector3 (size.x, size.y, 0);
+		return new Vector3 (size.x, size.y, 1);
 	}
 
 

@@ -21,6 +21,8 @@ public class Sprite : MonoBehaviour
 	public SpriteContainer spriteContainer;
 	private SpriteContainer _spriteContainer = null;
 	public int frameIndex = 0;
+	public float depth = 0;		// z-depth of sprite
+	private float _depth = 0;
 
 	private Transform _transform = null;
 	private SpriteData[] _spriteData;
@@ -72,6 +74,10 @@ public class Sprite : MonoBehaviour
 				_spriteContainer = spriteContainer;
 			} else if (spriteContainer == null) {
 				Reset ();
+			}
+
+			if (spriteContainer != null && depth != _depth) {
+				UpdateDepth ();
 			}
 
 			// The frameIndex will only be changed in the editor.
@@ -146,12 +152,23 @@ public class Sprite : MonoBehaviour
 	{
 		if (_mesh != null && _spriteData != null && _spriteData.Length > 0) {
 			_mesh.Clear ();
-			_mesh.vertices = _spriteData [frameIndex].vertices;
+			_mesh.vertices = spriteContainer.vertices;
+			_mesh.triangles = spriteContainer.triangles;
+			_mesh.normals = spriteContainer.normals;
 			_mesh.uv = _spriteData [frameIndex].uvs;
-			_mesh.triangles = _spriteData [frameIndex].triangles;
-			_mesh.normals = _spriteData [frameIndex].normals;
 			_transform.localScale = _spriteData [frameIndex].RecalculateSize ();
 			_mesh.RecalculateBounds ();
 		}
+	}
+
+	private void UpdateDepth ()
+	{
+		spriteContainer.UpdateVertices (depth);
+
+		_mesh.Clear ();
+		_mesh.vertices = spriteContainer.vertices;
+		_mesh.triangles = spriteContainer.triangles;
+		_mesh.normals = spriteContainer.normals;
+		_mesh.RecalculateBounds ();
 	}
 }
