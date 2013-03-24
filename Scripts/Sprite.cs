@@ -23,7 +23,6 @@ public class Sprite : MonoBehaviour
 	public int frameIndex = 0;
 	public float depth = 0;		// z-depth of sprite
 	private float _depth = 0;
-
 	private Transform _transform = null;
 	private SpriteData[] _spriteData;
 	private MeshFilter _meshFilter;			// MeshFilter component added to GameObject by script
@@ -143,6 +142,7 @@ public class Sprite : MonoBehaviour
 				_spriteData = spriteContainer.spriteData;
 			}
 
+			UpdateDepth ();
 			UpdateMesh ();
 		}
 	}
@@ -159,16 +159,13 @@ public class Sprite : MonoBehaviour
 			_transform.localScale = _spriteData [frameIndex].RecalculateSize ();
 			_mesh.RecalculateBounds ();
 		}
+
+		_meshChanged = false;
 	}
 
 	private void UpdateDepth ()
 	{
 		spriteContainer.UpdateVertices (depth);
-
-		_mesh.Clear ();
-		_mesh.vertices = spriteContainer.vertices;
-		_mesh.triangles = spriteContainer.triangles;
-		_mesh.normals = spriteContainer.normals;
-		_mesh.RecalculateBounds ();
+		_meshChanged = true;
 	}
 }

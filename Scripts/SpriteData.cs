@@ -1,11 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-// Inherit from ScriptableObject to get the proper serialization.
-// http://forum.unity3d.com/threads/155352-Serialization-Best-Practices-Megapost
-// http://answers.unity3d.com/questions/190350/what-is-the-purpose-of-scriptableobject-versus-nor.html#answer-190445
 [System.Serializable]
-public class SpriteData : ScriptableObject
+public class SpriteData
 {
 	public string name = "";
 	public Vector2 size;						// size of frame in pixels

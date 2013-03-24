@@ -145,11 +145,11 @@ public class SpriteContainer : MonoBehaviour
 			}
 		}
 
-		InitVertices();
+		InitVertices ();
 		spriteData = new SpriteData[data.Count];
 		SpriteData sprite = null;
 		for (int i = 0; i < data.Count; i++) {
-			sprite = ScriptableObject.CreateInstance<SpriteData> ();
+			sprite = new SpriteData ();
 			sprite.name = data [i].name;
 			sprite.size = data [i].size;
 			sprite.sheetPixelCoords = data [i].position;
