@@ -13,19 +13,13 @@ using System.Collections;
 // - http://docs.unity3d.com/Documentation/Manual/DrawCallBatching.html
 public class Sprite : MonoBehaviour
 {
-	// There's no good way to tell if an editor property has changed
-	// except to keep a copy of the value, and then in the Update()
-	// method, check if the public var (which is exposed to the editor)
-	// matches the private var. If it doesn't match, then in Update()
-	// do what we gotta do when the editor property changes.
-	public SpriteContainer spriteContainer;
-	private SpriteContainer _spriteContainer = null;
-	public int frameIndex = 0;
-	public float depth = 0;		// z-depth of sprite
-	private float _depth = 0;
+	[OnChange ("UpdateSpriteContainer")] public SpriteContainer spriteContainer;
+	[OnChange ("UpdateFrameIndex")] public int frameIndex = 0;
+	[OnChange ("UpdateDepth")] public float depth = 0;		// z-depth of sprite
+
 	private Transform _transform = null;
 	private SpriteData[] _spriteData;
-	private MeshFilter _meshFilter;			// MeshFilter component added to GameObject by script
+	private MeshFilter _meshFilter;		  // MeshFilter component added to GameObject by script
 	private Mesh _mesh;						// mesh object created by script, and added to MeshFilter
 	private bool _meshChanged = false;
 
@@ -39,7 +33,7 @@ public class Sprite : MonoBehaviour
 		}
 	}
 
-	void Awake ()
+	public virtual void Awake ()
 	{
 		_transform = transform;
 		_meshFilter = gameObject.GetComponent<MeshFilter> ();
@@ -65,49 +59,34 @@ public class Sprite : MonoBehaviour
 		//Resources.UnloadUnusedAssets ();
 	}
 
-	void Update ()
+	public virtual void Start ()
 	{
-		if (!Application.isPlaying) {
-			if (spriteContainer != _spriteContainer && spriteContainer != null) {
-				InitMeshAndSpriteData ();
-				_spriteContainer = spriteContainer;
-			} else if (spriteContainer == null) {
-				Reset ();
-			}
+	}
 
-			if (spriteContainer != null && depth != _depth) {
-				UpdateDepth ();
-			}
-
-			// The frameIndex will only be changed in the editor.
-			// To change the frame during runtime, use ShowFrame();
-			if (_spriteData != null) {
-				if (frameIndex < 0) {
-					frameIndex = 0;
-				} else if (frameIndex >= _spriteData.Length) {
-					frameIndex = _spriteData.Length - 1;
-				}
-
-				ShowFrame (frameIndex);
-			}
-		}
-
+	public virtual void Update ()
+	{
 		if (_meshChanged) {
 			UpdateMesh ();
 		}
+
+		// I'm not entirely sure what this does, but it seems it's necessary to
+		// properly update the properties that have the "OnChange" attribute.
+		#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+		#endif
 	}
 
-	public void ShowFrame (int index)
+	public virtual void ShowFrame (int index)
 	{
 		frameIndex = index;
 		_meshChanged = true;
 	}
 
 	// Reset all public vars, and remove any dynamically added game objects.
-	public void Reset ()
+	public virtual void Reset ()
 	{
 		spriteContainer = null;
-		_spriteContainer = null;
 		frameIndex = 0;
 		_spriteData = null;
 
@@ -116,6 +95,37 @@ public class Sprite : MonoBehaviour
 
 		_meshFilter.sharedMesh = null;
 		renderer.sharedMaterial = null;
+	}
+
+	public void UpdateSpriteContainer (SpriteContainer newVal)
+	{
+		spriteContainer = newVal;
+
+		if (spriteContainer != null) {
+			InitMeshAndSpriteData ();
+		} else {
+			Reset ();
+		}
+	}
+
+	public void UpdateFrameIndex (int newVal)
+	{
+		if (newVal < 0) {
+			frameIndex = 0;
+		} else if (newVal >= _spriteData.Length) {
+			frameIndex = _spriteData.Length - 1;
+		} else {
+			frameIndex = newVal;
+		}
+
+		UpdateMesh ();
+	}
+
+	public void UpdateDepth (float newVal)
+	{
+		depth = newVal;
+		spriteContainer.UpdateVertices (depth);
+		UpdateMesh ();
 	}
 
 	/*** Private ***/
@@ -142,7 +152,7 @@ public class Sprite : MonoBehaviour
 				_spriteData = spriteContainer.spriteData;
 			}
 
-			UpdateDepth ();
+			UpdateDepth (depth);
 			UpdateMesh ();
 		}
 	}
@@ -161,11 +171,5 @@ public class Sprite : MonoBehaviour
 		}
 
 		_meshChanged = false;
-	}
-
-	private void UpdateDepth ()
-	{
-		spriteContainer.UpdateVertices (depth);
-		_meshChanged = true;
 	}
 }

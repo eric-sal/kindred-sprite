@@ -11,11 +11,9 @@ public class SpriteContainer : MonoBehaviour
 {
 	public Texture texture;
 	public SpriteData[] spriteData;
-	public TextAsset atlasDataFile = null;
-	private TextAsset _atlasDataFile = null;
-	public bool reloadData = false;
+	[OnChange ("UpdateAtlasDataFile")] public TextAsset atlasDataFile = null;
+	[OnChange ("UpdateReloadData")] public bool reloadData = false;
 
-	private int _atlasDataFileSize = 0;
 	private Material _material;
 	private XmlNode _subTexture = null;
 
@@ -36,37 +34,6 @@ public class SpriteContainer : MonoBehaviour
 			}
 
 			return _material;
-		}
-	}
-
-	public void Update ()
-	{
-		if (!Application.isPlaying) {
-			if (atlasDataFile == null || texture == null) {
-				Reset ();
-			}
-
-			// Only reload the data file if it's changed, or we're forcing a reload.
-			// We'll assume the data file has changed if the file is different from the cached file,
-			// or if the filesize of the atlas data file has changed.
-			if (reloadData || _atlasDataFile != atlasDataFile || (atlasDataFile != null && _atlasDataFileSize != atlasDataFile.bytes.Length)) {
-				if (atlasDataFile != null) {
-					ImportAtlasData ();
-					reloadData = false;
-
-					_atlasDataFileSize = atlasDataFile.bytes.Length;
-				}
-
-				_atlasDataFile = atlasDataFile;
-			}
-		}
-	}
-
-	public void Reset ()
-	{
-		if (atlasDataFile == null) {
-			_atlasDataFile = null;
-			_atlasDataFileSize = 0;
 		}
 	}
 
@@ -101,6 +68,18 @@ public class SpriteContainer : MonoBehaviour
 		vertices [1] = new Vector3 (0.5f, -0.5f, depth);	// lower-right
 		vertices [2] = new Vector3 (-0.5f, 0.5f, depth);	// upper-left
 		vertices [3] = new Vector3 (0.5f, 0.5f, depth);		// upper-right
+	}
+
+	public void UpdateAtlasDataFile (TextAsset newVal)
+	{
+		atlasDataFile = newVal;
+		ReloadData ();
+	}
+
+	// Only reload the data file if it's changed, or we're forcing a reload.
+	public void UpdateReloadData (bool newVal)
+	{
+		ReloadData ();
 	}
 
 	/*** Private ***/
@@ -158,5 +137,13 @@ public class SpriteContainer : MonoBehaviour
 
 			spriteData [i] = sprite;
 		}
+	}
+
+	private void ReloadData() {
+		if (atlasDataFile != null) {
+			ImportAtlasData ();
+		}
+
+		reloadData = false;
 	}
 }

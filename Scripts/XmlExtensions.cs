@@ -29,7 +29,6 @@ namespace XmlExtensions {
 			return (keyNode != null) ? keyNode.NextSibling : null;
 		}
 
-
 		/* Private */
 
 		private static Vector2 StringToVector2 (string s)
