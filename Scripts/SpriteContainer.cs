@@ -10,7 +10,7 @@ using XmlExtensions;
 public class SpriteContainer : MonoBehaviour {
     public Texture texture;
     public SpriteData[] spriteData;
-    [OnChange ("UpdateAtlasDataFile")] public TextAsset atlasDataFile = null;
+    [OnChange ("UpdateAtlasDataFile", typeof(TextAsset))] public TextAsset atlasDataFile = null;
     [OnChange ("UpdateReloadData")] public bool reloadData = false;
 
     private Material _material;

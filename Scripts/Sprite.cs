@@ -12,7 +12,7 @@ using System.Collections;
 // dynamic batching.
 // - http://docs.unity3d.com/Documentation/Manual/DrawCallBatching.html
 public class Sprite : MonoBehaviour {
-    [OnChange ("UpdateSpriteContainer")] public SpriteContainer spriteContainer;
+    [OnChange ("UpdateSpriteContainer", typeof(SpriteContainer))] public SpriteContainer spriteContainer;
     [OnChange ("UpdateFrameIndex")] public int frameIndex = 0;
     [OnChange ("UpdateDepth")] public float depth = 0;        // z-depth of sprite
 
@@ -27,32 +27,11 @@ public class Sprite : MonoBehaviour {
         set { _transform.position = new Vector3(value.x, value.y, _transform.position.z); }
     }
 
-    public virtual void Awake() {
+    public virtual void Start() {
         _transform = transform;
         _meshFilter = gameObject.GetComponent<MeshFilter>();
         InitMeshAndSpriteData();
-
-        // The important thing to remember is that Unity automatically batches draw calls if the sprites
-        // are using the same material. I assumed that creating the material on the SpriteContainer and
-        // then pointing all renderer materials to that instance would work. But I think that's why I'm
-        // getting material memory leaks.
-        // - http://answers.unity3d.com/questions/192561/renderermaterials-leaking-materials.html#answer-container-192915
-        //
-        // This prevents the "Cleaning up leaked objects..." message. I believe it's necessary because of
-        // how we're instantiating/sharing the material from the SpriteContainer object.
-        // My hypothesis: When the render is created/added to the GameObject, it already has a default material
-        // assigned. When we set the material for that renderer to the material created on the SpriteContainer
-        // object, the material that *was* on the renderer initially is no longer used, but also isn't
-        // garbage collected immediately.
-        // - http://answers.unity3d.com/questions/38960/cleaning-up-leaked-objects-in-scene-since-no-game.html
-        //
-        // This is too resource intensive, and probably shouldn't be run on every Sprite instance.
-        // If necessary, it would be best to move to a scene-controller-like game object. Ideally,
-        // we could figure out how to stop the material leaks.
-        //Resources.UnloadUnusedAssets();
     }
-
-    public virtual void Start() { }
 
     public virtual void Update() {
         if (_meshChanged) {

@@ -30,7 +30,6 @@ public class SpriteData {
         return new Vector3(size.x, size.y, 1);
     }
 
-
     // Converts pixel-space values to UV-space scalar values
     // according to the currently assigned material.
     public Vector2 PixelSpaceToUVSpace(float x, float y) {

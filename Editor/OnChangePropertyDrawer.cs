@@ -27,8 +27,7 @@ public class OnChangePropertyDrawer : PropertyDrawer {
             val = EditorGUI.IntField(position, label, prop.intValue);
             break;
         case SerializedPropertyType.ObjectReference:
-            Type objectReferenceType = prop.objectReferenceValue != null ? prop.objectReferenceValue.GetType() : typeof(UnityEngine.Object);
-            val = EditorGUI.ObjectField(position, label, prop.objectReferenceValue, objectReferenceType, true);
+            val = EditorGUI.ObjectField(position, label, prop.objectReferenceValue, onChangeAttribute.objectReferenceType, true);
             break;
         case SerializedPropertyType.String:
             val = EditorGUI.TextField(position, label, prop.stringValue);
@@ -41,7 +40,7 @@ public class OnChangePropertyDrawer : PropertyDrawer {
             object instance = (prop.depth > 1) ? GetParent(prop) : prop.serializedObject.targetObject;
 
             MethodInfo method = instance.GetType().GetMethod(onChangeAttribute.callback);
-            method.Invoke(instance, new object[]{ val });
+            method.Invoke(instance, new object[] { val });
         }
     }
 
