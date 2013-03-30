@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -97,3 +99,5 @@ public class OnChangePropertyDrawer : PropertyDrawer
 		return enm.Current;
 	}
 }
+
+#endif
