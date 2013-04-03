@@ -37,14 +37,6 @@ public class Sprite : MonoBehaviour {
         if (_meshChanged) {
             UpdateMesh();
         }
-
-        // I'm not entirely sure what this does, but it seems it's necessary to
-        // properly update the properties that have the "OnChange" attribute.
-        #if UNITY_EDITOR
-            if (!Application.isPlaying) {
-                UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
-            }
-        #endif
     }
 
     public virtual void ShowFrame(int index) {
@@ -73,6 +65,14 @@ public class Sprite : MonoBehaviour {
         } else {
             Reset();
         }
+
+        // I'm not entirely sure what this does, but it seems it's necessary to
+        // properly update the non-standard properties that have the "OnChange" attribute.
+        #if UNITY_EDITOR
+            if (!Application.isPlaying) {
+                UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+            }
+        #endif
     }
 
     public void UpdateFrameIndex(int newVal) {
@@ -85,12 +85,24 @@ public class Sprite : MonoBehaviour {
         }
 
         UpdateMesh();
+
+        #if UNITY_EDITOR
+            if (!Application.isPlaying) {
+                UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+            }
+        #endif
     }
 
     public void UpdateDepth(float newVal) {
         depth = newVal;
         spriteContainer.UpdateVertices(depth);
         UpdateMesh();
+
+        #if UNITY_EDITOR
+            if (!Application.isPlaying) {
+                UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+            }
+        #endif
     }
 
     /*** Private ***/

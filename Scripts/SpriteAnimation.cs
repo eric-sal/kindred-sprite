@@ -6,14 +6,6 @@ using System.Collections;
 public class SpriteAnimation : MonoBehaviour {
     public AnimationFrameset[] framesets;
 
-    public void Update() {
-        #if UNITY_EDITOR
-            if (!Application.isPlaying) {
-                UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
-            }
-        #endif
-    }
-
     public AnimationFrameset GetFrameset(string framesetName) {
         AnimationFrameset frameset = null;
 

@@ -139,5 +139,11 @@ public class SpriteContainer : MonoBehaviour {
         }
 
         reloadData = false;
+
+        #if UNITY_EDITOR
+            if (!Application.isPlaying) {
+                UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+            }
+        #endif
     }
 }
