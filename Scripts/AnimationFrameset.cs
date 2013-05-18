@@ -2,25 +2,34 @@ using UnityEngine;
 using System.Collections;
 
 [ExecuteInEditMode]
-
 [System.Serializable]
+
+/// <summary>
+/// The defined animation behavior of a single set of frames.
+/// </summary>
 public class AnimationFrameset {
     public enum SelectType { Range, FrameIndex }
 
-    public string name;
+    /* *** Member Variables *** */
+
+    public string name;         // AnimationFramesets can be fetched from an array by name or index.
     public float duration = 0;  // The number of seconds it takes to play all frames in the animation.
-    public int startFrame;
-    public int endFrame;
-    public bool startOnRandomFrame = false;
-    public bool pingPong = false;
-    [OnChange ("UpdateLooping")] public bool looping = false;            // Keep playing animation until stopped.
-    [OnChange ("UpdateNumberOfPlays")] public int numberOfPlays = -1;    // How many times we should play the animation.
-                                                                         // If looping == false, and numberOfPlays <= 1, then play the animation once.
+    public int startFrame;      // Index of the frame in the SpriteContainer().SpriteData to start our animation on.
+    public int endFrame;        // Index of the frame to end our animation on.
+    public bool startOnRandomFrame = false;	// Start the animation on any frame in our set between startFrame and endFrame inclusively.
+    public bool pingPong = false;			// When ping ponging, one complete animation cycle is from the start frame to the end frame, and back down again.
+    public bool looping = false;			// Keep playing animation until stopped.
+    public int numberOfPlays = -1;			// How many times we should play the animation.
+											// If looping == false, and numberOfPlays <= 1, then play the animation once.
 
-    private int _step = 1;
-    private int _currentFrame = -1;
-    private int _timesPlayed = 0;
+    /* *** Properties *** */
 
+    /// <summary>
+    /// Gets the number of frames in this set.
+    /// </summary>
+    /// <value>
+    /// The number of frames in this set.
+    /// </value>
     public int numberOfFrames {
         get {
             int _numberOfFrames = -1;
@@ -35,73 +44,14 @@ public class AnimationFrameset {
         }
     }
 
-    public float durationPerFrame {
+    /// <summary>
+    /// Gets the seconds per frame.
+    /// A frame is only displayed on screen for X number of seconds, where X = the duration (in seconds) / the total number of frames in this set.
+    /// </summary>
+    /// <value>
+    /// The duration per frame in seconds.
+    /// </value>
+    public float secondsPerFrame {
         get { return duration / numberOfFrames; }
-    }
-
-    public bool limitNumberOfPlays {
-        get { return numberOfPlays > 0; }
-    }
-
-    // A frame index of -1 means we're done playing this frameset.
-    public int nextFrame {
-        get {
-            int _nextFrame = _currentFrame + _step;
-
-            if (pingPong) {
-                // If we're ping-ponging, the animation should go from the
-                // start frame to the end frame, and back down again.
-                // And if we're looping, keep the ping-pong going.
-                if (_nextFrame < startFrame) {
-                    _timesPlayed++;
-                }
-
-                if (_nextFrame > endFrame || (_nextFrame < startFrame && looping) || (_nextFrame < startFrame && numberOfPlays > 0 && _timesPlayed < numberOfPlays)) {
-                    _step *= -1;
-                    _currentFrame += _step;
-                } else if (_nextFrame < startFrame) {
-                    _currentFrame = -1;
-                } else {
-                    _currentFrame = _nextFrame;
-                }
-            } else {
-                if (_nextFrame > endFrame) {
-                    _timesPlayed++;
-
-                    if (looping || (numberOfPlays > 0 && _timesPlayed < numberOfPlays)) {
-                        _currentFrame = startFrame;
-                    } else {
-                        _currentFrame = -1;
-                    }
-                } else {
-                    _currentFrame = _nextFrame;
-                }
-            }
-
-            return _currentFrame;
-        }
-    }
-
-    // Reset the frameset to be played from the beginning.
-    public void Reset() {
-        _step = 1;
-        _timesPlayed = 0;
-        _currentFrame = startFrame;
-    }
-
-    public void UpdateLooping(bool newVal) {
-        looping = newVal;
-        if (looping) {
-            // If we're looping, the number of plays is infinite.
-            numberOfPlays = -1;
-        }
-    }
-
-    public void UpdateNumberOfPlays(int newVal) {
-        numberOfPlays = newVal;
-        if (numberOfPlays > 0) {
-            // If we set the number of plays, we're not looping.
-            looping = false;
-        }
     }
 }

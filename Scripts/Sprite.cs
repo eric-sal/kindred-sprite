@@ -3,29 +3,24 @@ using System.Collections;
 
 [ExecuteInEditMode]
 
-// The material has to be shared between game objects, and if it's
-// created and stored in a variable on the SpriteContainer object,
-// which lives in the hierarchy, then there's no need to create
-// new instances of the material.
-//
-// Shared materials are one of the things that trigger Unity's
-// dynamic batching.
-// - http://docs.unity3d.com/Documentation/Manual/DrawCallBatching.html
+/// <summary>
+/// Simple sprite class.
+/// </summary>
 public class Sprite : MonoBehaviour {
+
+    /* *** Member Variables *** */
+
     [OnChange ("UpdateSpriteContainer", typeof(SpriteContainer))] public SpriteContainer spriteContainer;
-    [OnChange ("UpdateFrameIndex")] public int frameIndex = 0;
-    [OnChange ("UpdateDepth")] public float depth = 0;        // z-depth of sprite
+    [OnChange ("UpdateFrameIndex")] public int frameIndex = 0;  // Index of the frame to display from spriteContainer.SpriteData
+    [OnChange ("UpdateDepth")] public float depth = 0;          // z-depth of sprite
 
     private Transform _transform = null;
     private SpriteData[] _spriteData;
     private MeshFilter _meshFilter;     // MeshFilter component added to GameObject by script
     private Mesh _mesh;                 // mesh object created by script, and added to MeshFilter
-    private bool _meshChanged = false;
+    private bool _meshChanged = false;  // We've changed the mesh by changing the frame index
 
-    public Vector2 position {
-        get { return new Vector2(_transform.position.x, _transform.position.y); }
-        set { _transform.position = new Vector3(value.x, value.y, _transform.position.z); }
-    }
+    /* *** Constructors *** */
 
     public virtual void Start() {
         _transform = transform;
@@ -33,18 +28,14 @@ public class Sprite : MonoBehaviour {
         InitMeshAndSpriteData();
     }
 
+    /* *** MonoBehaviour Methods *** */
+
     public virtual void Update() {
         if (_meshChanged) {
             UpdateMesh();
         }
     }
 
-    public virtual void ShowFrame(int index) {
-        frameIndex = index;
-        _meshChanged = true;
-    }
-
-    // Reset all public vars, and remove any dynamically added game objects.
     public virtual void Reset() {
         spriteContainer = null;
         frameIndex = 0;
@@ -57,6 +48,25 @@ public class Sprite : MonoBehaviour {
         renderer.sharedMaterial = null;
     }
 
+    /* *** Public Methods *** */
+
+    /// <summary>
+    /// Change the frame index, and mark the mesh as changed for the next Update() call.
+    /// </summary>
+    /// <param name='index'>
+    /// Index of the frame to show
+    /// </param>
+    public virtual void ShowFrame(int index) {
+        frameIndex = index;
+        _meshChanged = true;
+    }
+
+    /// <summary>
+    /// Callback for the OnChange event from the Unity editor.
+    /// </summary>
+    /// <param name='newVal'>
+    /// New SpriteContainer
+    /// </param>
     public void UpdateSpriteContainer(SpriteContainer newVal) {
         spriteContainer = newVal;
 
@@ -75,6 +85,12 @@ public class Sprite : MonoBehaviour {
         #endif
     }
 
+    /// <summary>
+    /// Callback for the OnChange event from the Unity editor.
+    /// </summary>
+    /// <param name='newVal'>
+    /// New frameIndex
+    /// </param>
     public void UpdateFrameIndex(int newVal) {
         if (newVal < 0) {
             frameIndex = 0;
@@ -84,6 +100,7 @@ public class Sprite : MonoBehaviour {
             frameIndex = newVal;
         }
 
+        // We've changed the frame index, so call UpdateMesh() to display it
         UpdateMesh();
 
         #if UNITY_EDITOR
@@ -93,9 +110,17 @@ public class Sprite : MonoBehaviour {
         #endif
     }
 
+    /// <summary>
+    /// Callback for the OnChange event from the Unity editor.
+    /// </summary>
+    /// <param name='newVal'>
+    /// New z-index depth of the sprite
+    /// </param>
     public void UpdateDepth(float newVal) {
         depth = newVal;
         spriteContainer.UpdateVertices(depth);
+
+        // We've changed the sprite's verts, so call UpdateMesh() to display it
         UpdateMesh();
 
         #if UNITY_EDITOR
@@ -105,14 +130,18 @@ public class Sprite : MonoBehaviour {
         #endif
     }
 
-    /*** Private ***/
+    /* *** Private Methods *** */
 
+    /// <summary>
+    /// Create a new mesh (if necessary), fetch the sprite data from our SpriteContainer, and update the mesh.
+    /// </summary>
     private void InitMeshAndSpriteData() {
         if (spriteContainer != null) {
             if (_mesh == null) {
                 _mesh = new Mesh();
                 _mesh.name = spriteContainer.name;
 
+                // Remember, sharing the material is what makes dynamic batching of draw calls happen in Unity.
                 if (Application.isPlaying) {
                     _meshFilter.mesh = _mesh;
                     renderer.material = spriteContainer.material;
@@ -133,7 +162,10 @@ public class Sprite : MonoBehaviour {
         }
     }
 
-    // http://docs.unity3d.com/Documentation/ScriptReference/Mesh.html
+    /// <summary>
+    /// Updates the mesh based on the verts, triangles, UVs from the sprite data
+    /// http://docs.unity3d.com/Documentation/ScriptReference/Mesh.html
+    /// </summary>
     private void UpdateMesh() {
         if (_mesh != null && _spriteData != null && _spriteData.Length > 0) {
             _mesh.Clear();

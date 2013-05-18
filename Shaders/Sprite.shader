@@ -10,12 +10,12 @@ Shader "Sprite" {
 		Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
 
 		ZWrite Off
-	    Blend SrcAlpha OneMinusSrcAlpha 
+	    Blend SrcAlpha OneMinusSrcAlpha
 	    Lighting Off
 	    Cull Off	// so we can have one frame for both left/right states
-		
+
 	    Pass {
-	        SetTexture [_MainTex] { combine texture } 
+	        SetTexture [_MainTex] { combine texture }
 	    }
 	}
 }

@@ -6,8 +6,23 @@ using XmlExtensions;
 
 [ExecuteInEditMode]
 
-// Import sprite sheet and atlas data
+/// <summary>
+/// Handles the import of sprite sheet and atlas data.
+/// The spriteData is used by the Sprite and AnimatedSprite classes.
+///
+/// The material has to be shared between game objects, and if it's
+/// created and stored in a variable on the SpriteContainer object,
+/// which lives in the hierarchy, then there's no need to create
+/// new instances of the material.
+///
+/// Shared materials are one of the things that trigger Unity's
+/// dynamic batching.
+/// - http://docs.unity3d.com/Documentation/Manual/DrawCallBatching.html
+/// </summary>
 public class SpriteContainer : MonoBehaviour {
+
+    /* *** Member Variables *** */
+
     public Texture texture;
     public SpriteData[] spriteData;
     [OnChange ("UpdateAtlasDataFile", typeof(TextAsset))] public TextAsset atlasDataFile = null;
@@ -22,6 +37,14 @@ public class SpriteContainer : MonoBehaviour {
     [HideInInspector] public int[] triangles = new int[6];           // define the triangles of the mesh using the vertex indices - we're winding clockwise
     [HideInInspector] public Vector3[] normals = new Vector3[4];
 
+    /* *** Properties *** */
+
+    /// <summary>
+    /// Gets the Material object that all sprites that use this SpriteContainer will share.
+    /// </summary>
+    /// <value>
+    /// The Material.
+    /// </value>
     public Material material {
         get {
             if (_material == null) {
@@ -36,9 +59,13 @@ public class SpriteContainer : MonoBehaviour {
         }
     }
 
-    // Since the verts/tris/normals should be exactly the same for all
-    // sprites in the container, we can keep that info on the SpriteContainer,
-    // rather than duplicate it for each SpriteData object in our array.
+    /* *** Public Methods *** */
+
+    /// <summary>
+    /// Since the verts/tris/normals should be exactly the same for all sprites in the container,
+    /// we can keep that info on the SpriteContainer, rather than duplicate it for each SpriteData
+    /// object in our array.
+    /// </summary>
     public void InitVertices() {
         UpdateVertices(0);
 
@@ -59,27 +86,48 @@ public class SpriteContainer : MonoBehaviour {
         normals[3] = Vector3.forward;
     }
 
+    /// <summary>
+    /// Updates the vertices for a centered pivot point.
+    /// The z-depth of the verts are the only variable component.
+    /// </summary>
+    /// <param name='depth'>
+    /// Z-depth of the verts.
+    /// </param>
     public void UpdateVertices(float depth) {
-        // for a centered pivot point
         vertices[0] = new Vector3(-0.5f, -0.5f, depth);   // lower-left
         vertices[1] = new Vector3(0.5f, -0.5f, depth);    // lower-right
         vertices[2] = new Vector3(-0.5f, 0.5f, depth);    // upper-left
         vertices[3] = new Vector3(0.5f, 0.5f, depth);     // upper-right
     }
 
+    /// <summary>
+    /// Callback for OnChange event from the Unity editor.
+    /// Reload the sprite data when the atlas data file changes.
+    /// </summary>
+    /// <param name='newVal'>
+    /// New value for `atlasDataFile`
+    /// </param>
     public void UpdateAtlasDataFile(TextAsset newVal) {
         atlasDataFile = newVal;
         ReloadData();
     }
 
-    // Only reload the data file if it's changed, or we're forcing a reload.
+    /// <summary>
+    /// Callback for OnChange event from the Unity editor.
+    /// Forces a reload of the sprite data.
+    /// </summary>
+    /// <param name='newVal'>
+    /// Boolean
+    /// </param>
     public void UpdateReloadData(bool newVal) {
         ReloadData();
     }
 
-    /*** Private ***/
+    /* *** Private Methods *** */
 
-    // Read and parse atlas data from XML file
+    /// <summary>
+    /// Read and parse atlas data from XML file.
+    /// </summary>
     private void ImportAtlasData() {
         XmlDocument xml = new XmlDocument();
         xml.LoadXml(atlasDataFile.text);
@@ -133,6 +181,9 @@ public class SpriteContainer : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Reloads the sprite data.
+    /// </summary>
     private void ReloadData() {
         if (atlasDataFile != null) {
             ImportAtlasData();

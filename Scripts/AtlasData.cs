@@ -1,8 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-// Atlas data about a frame on a sprite sheet
 [System.Serializable]
+
+/// <summary>
+/// Atlas data about a frame on a sprite sheet
+/// </summary>
 public class AtlasData {
     public string name = "";
     public Vector2 position = Vector2.zero;

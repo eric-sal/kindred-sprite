@@ -2,7 +2,9 @@ using UnityEngine;
 using System.Xml;
 
 namespace XmlExtensions {
-    // Helper methods for parsing XML atlas data file
+	/// <summary>
+	/// Helper methods for parsing XML atlas data file
+	/// </summary>
     public static class XmlNodeExtensions {
         public static Rect GetRect(this XmlNode node, string name) {
             XmlNode valueNode = node.GetValueForKey(name);
@@ -24,7 +26,7 @@ namespace XmlExtensions {
             return (keyNode != null) ? keyNode.NextSibling : null;
         }
 
-        /* Private */
+        /* *** Private Methods *** */
 
         private static Vector2 StringToVector2(string s) {
             string _s = s.Substring(1, s.Length - 2);
