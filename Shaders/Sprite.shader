@@ -1,3 +1,7 @@
+// Copyright (c) 2012 Eric Salczynski and Ramón Rocha
+// This program (Kindred Sprite) is released under the MIT License.
+// http://opensource.org/licenses/MIT
+
 // Custom sprite shader - no lighting, on/off alpha
 // Sources:
 // - http://docs.unity3d.com/Documentation/Manual/Shaders.html
